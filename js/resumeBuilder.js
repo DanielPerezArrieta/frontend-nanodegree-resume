@@ -1,6 +1,18 @@
+//Main Id Element selectors 
+var $header = $('#header'),
+    $contact = $('#topContacts'),
+    $experience = $('#workExperience'),
+    $projects = $('#projects'),
+    $education = $('#education'),
+    $connect = $('#letsConnect'),
+    $footer = $('#footerContacts');
+
+
 /*
-      Building BIO (JSON Object)
+      Building BIO (JSON Object) & Render
 */
+
+
 
 bio = {
   "name": "Daniel Pérez Arrieta",
@@ -16,12 +28,53 @@ bio = {
   "skills": [ 
     "HTML","Javascript","CSS2/3","Programming Skills"
   ],
-  "pic": "images/superLopez.jpg"
+  "pic": "images/superLopez.jpg",
+  render: function(){
+    var init = {
+      addHeader: function(){
+          $header
+        .prepend(FormattedHTMLheaderRole)
+        .prepend(FormattedHTMLheaderName);
+      },
+      addContacts: function($elem) {
+        for (data in bio.contacts) {
+          FormattedHTMLcontactGeneric = HTMLcontactGeneric.replace("%contact%", data);
+          FormattedHTMLcontactGeneric = FormattedHTMLcontactGeneric.replace("%data%", bio.contacts[data]);
+          $elem.append(FormattedHTMLcontactGeneric);
+        }
+      },
+      addPicAndSkills: function(){
+        $header
+          .append(FormattedHTMLbioPic)
+          .append(FormattedWelcomeMsg)
+          .append(HTMLskillsStart);  
+
+        for (data in bio.skills) {
+          FormattedHTMLskills = HTMLskills.replace("%data%", bio.skills[data]);
+          $header.append(FormattedHTMLskills);
+        }
+      }
+    },
+     //Bio and Contact header vars
+    FormattedHTMLheaderName = HTMLheaderName.replace("%data%", bio["name"]), 
+    FormattedHTMLheaderRole = HTMLheaderRole.replace("%data%", bio["role"]),
+    FormattedHTMLcontactGeneric,
+    FormattedHTMLbioPic = HTMLbioPic.replace("%data%", bio["pic"]),
+    FormattedWelcomeMsg = HTMLWelcomeMsg.replace("%data%", bio["welcomeMessage"]),
+    FormattedHTMLskills;
+    
+    init.addHeader();
+    init.addContacts($contact);
+    init.addPicAndSkills();
+    //add Contact info at Footer 
+    init.addContacts($footer);
+
+  } 
 
 }
 
 /*
-      Building Work (JSON Object)
+      Building Work (JSON Object) & Render
 */
 
 work = {
@@ -57,11 +110,44 @@ work = {
         "description": "Technical leading creativity for web based (http/Restful) technology services."
 
     },        
-  ]
+  ],
+  render: function() {
+    
+    var FormattedHTMLworkEmployer, FormattedHTMLworkTitle, FormattedHTMLworkDates, FormattedHTMLworkLocation, FormattedHTMLworkDescription,
+        $entry,
+        init = {
+          formatData: function() {
+            FormattedHTMLworkEmployer = HTMLworkEmployer.replace("%data%", work.jobs[data].employer);
+            FormattedHTMLworkTitle = HTMLworkTitle.replace("%data%", work.jobs[data].title);
+            FormattedHTMLworkDates = HTMLworkDates.replace("%data%", work.jobs[data].location);
+            FormattedHTMLworkLocation = HTMLworkLocation.replace("%data%", work.jobs[data]["dates worked"]);
+            FormattedHTMLworkDescription = HTMLworkDescription.replace("%data%", work.jobs[data].description);            
+          },
+          renderData: function(){
+            $entry.append(FormattedHTMLworkEmployer+FormattedHTMLworkTitle)
+              .append(FormattedHTMLworkDates)
+              .append(FormattedHTMLworkLocation)
+              .append(FormattedHTMLworkDescription);
+          },
+          createDiv: function() {
+            $experience.append(HTMLworkStart);    
+            $entry = $experience.find('.work-entry');
+          }
+        };    
+
+
+    init.createDiv();
+    for (data in work.jobs) {
+      //Define right data to be appended to Work Experience
+      init.formatData();
+      // Append Data to work-entry div
+      init.renderData();
+    }    
+  }
 }
 
 /*
-      Building Projects (JSON Object)
+      Building Projects (JSON Object) & Render
 */
 
 projects = {
@@ -87,11 +173,55 @@ projects = {
       "images": ["images/projects/project-3.jpg", "images/projects/project-3-2.jpg"]
 
     },
-  ]
+  ],
+  render: function() {
+    var FormattedHTMLprojectTitle, FormattedHTMLprojectDates, FormattedHTMLprojectDescription, FormattedHTMLprojectImage,
+        $entry, myProjects = projects.projects,
+        init = {
+          formatProjects: function() {
+            FormattedHTMLprojectTitle = HTMLprojectTitle.replace("%data%",myProjects[data].title);
+            FormattedHTMLprojectDates = HTMLprojectDates.replace("%data%",myProjects[data]["dates worked"]);
+            FormattedHTMLprojectDescription = HTMLprojectDescription.replace("%data%",myProjects[data].description);
+          },
+          renderProjects: function(){
+            $entry.append(FormattedHTMLprojectTitle)
+              .append(FormattedHTMLprojectDates)
+              .append(FormattedHTMLprojectDescription);
+          },
+          startElement: function(){
+            $projects.append(HTMLprojectStart); 
+            $entry = $projects.find('.project-entry'); 
+          },
+          formatSkill: function(){
+            FormattedHTMLprojectImage = HTMLprojectImage.replace("%data%",myProjects[data]["images"][img]);
+          },
+          renderSkill: function() {
+            $entry.append(FormattedHTMLprojectImage);
+          }
+
+        };
+
+      init.startElement();
+
+      for (data in myProjects) {
+        // get Data from JSON Object
+        init.formatProjects();
+        // Append Data into the Projects section
+        init.renderProjects();
+        //run through array and append images
+        for (img in myProjects[data]["images"]){
+          //get Image element from array
+          init.formatSkill();
+          //Append Image to Image placeholder
+          init.renderSkill();
+        }
+      }    
+  }
+
 }
 
 /*
-      Building Education (JSON Object)
+      Building Education (JSON Object) & Render
 */
 
 education = {
@@ -142,149 +272,8 @@ education = {
       "url": "https://www.udacity.com/course/nd001"
 
     }       
-  ]        
-}
-
-
-
-
-/* *********** Builder Code ***************/
-
-//Main Id Element selectors 
-var $header = $('#header'),
-    $contact = $('#topContacts'),
-    $experience = $('#workExperience'),
-    $projects = $('#projects'),
-    $education = $('#education'),
-    $map = $('#mapDiv'),
-    $connect = $('#letsConnect'),
-    $footer = $('#footerContacts'),
-
-/* Function definitions */
-//Biography
-addBio = function(){
-  var init = {
-    addHeader: function(){
-        $header
-      .prepend(FormattedHTMLheaderRole)
-      .prepend(FormattedHTMLheaderName);
-    },
-    addContacts: function($elem) {
-      for (data in bio.contacts) {
-        FormattedHTMLcontactGeneric = HTMLcontactGeneric.replace("%contact%", data);
-        FormattedHTMLcontactGeneric = FormattedHTMLcontactGeneric.replace("%data%", bio.contacts[data]);
-        $elem.append(FormattedHTMLcontactGeneric);
-      }
-    },
-    addPicAndSkills: function(){
-      $header
-        .append(FormattedHTMLbioPic)
-        .append(FormattedWelcomeMsg)
-        .append(HTMLskillsStart);  
-
-      for (data in bio.skills) {
-        FormattedHTMLskills = HTMLskills.replace("%data%", bio.skills[data]);
-        $header.append(FormattedHTMLskills);
-      }
-    }
-  },
-   //Bio and Contact header vars
-  FormattedHTMLheaderName = HTMLheaderName.replace("%data%", bio["name"]), 
-  FormattedHTMLheaderRole = HTMLheaderRole.replace("%data%", bio["role"]),
-  FormattedHTMLcontactGeneric,
-  FormattedHTMLbioPic = HTMLbioPic.replace("%data%", bio["pic"]),
-  FormattedWelcomeMsg = HTMLWelcomeMsg.replace("%data%", bio["welcomeMessage"]),
-  FormattedHTMLskills;
-  
-  init.addHeader();
-  init.addContacts($contact);
-  init.addPicAndSkills();
-  //add Contact info at Footer 
-  init.addContacts($footer);
-
-},
-
-//Work Block 
-
-  addWork = function() {
-    
-    var FormattedHTMLworkEmployer, FormattedHTMLworkTitle, FormattedHTMLworkDates, FormattedHTMLworkLocation, FormattedHTMLworkDescription,
-        $entry,
-        init = {
-          formatData: function() {
-            FormattedHTMLworkEmployer = HTMLworkEmployer.replace("%data%", work.jobs[data].employer);
-            FormattedHTMLworkTitle = HTMLworkTitle.replace("%data%", work.jobs[data].title);
-            FormattedHTMLworkDates = HTMLworkDates.replace("%data%", work.jobs[data].location);
-            FormattedHTMLworkLocation = HTMLworkLocation.replace("%data%", work.jobs[data]["dates worked"]);
-            FormattedHTMLworkDescription = HTMLworkDescription.replace("%data%", work.jobs[data].description);            
-          },
-          renderData: function(){
-            $entry.append(FormattedHTMLworkEmployer+FormattedHTMLworkTitle)
-              .append(FormattedHTMLworkDates)
-              .append(FormattedHTMLworkLocation)
-              .append(FormattedHTMLworkDescription);
-          },
-          createDiv: function() {
-            $experience.append(HTMLworkStart);    
-            $entry = $experience.find('.work-entry');
-          }
-        };    
-
-
-    init.createDiv();
-    for (data in work.jobs) {
-      //Define right data to be appended to Work Experience
-      init.formatData();
-      // Append Data to work-entry div
-      init.renderData();
-    }    
-  },
-
-// Projects 
-  addProjects = function() {
-    var FormattedHTMLprojectTitle, FormattedHTMLprojectDates, FormattedHTMLprojectDescription, FormattedHTMLprojectImage,
-        $entry, myProjects = projects.projects,
-        init = {
-          formatProjects: function() {
-            FormattedHTMLprojectTitle = HTMLprojectTitle.replace("%data%",myProjects[data].title);
-            FormattedHTMLprojectDates = HTMLprojectDates.replace("%data%",myProjects[data]["dates worked"]);
-            FormattedHTMLprojectDescription = HTMLprojectDescription.replace("%data%",myProjects[data].description);
-          },
-          renderProjects: function(){
-            $entry.append(FormattedHTMLprojectTitle)
-              .append(FormattedHTMLprojectDates)
-              .append(FormattedHTMLprojectDescription);
-          },
-          startElement: function(){
-            $projects.append(HTMLprojectStart); 
-            $entry = $projects.find('.project-entry'); 
-          },
-          formatSkill: function(){
-            FormattedHTMLprojectImage = HTMLprojectImage.replace("%data%",myProjects[data]["images"][img]);
-          },
-          renderSkill: function() {
-            $entry.append(FormattedHTMLprojectImage);
-          }
-
-        };
-
-      init.startElement();
-
-      for (data in myProjects) {
-        // get Data from JSON Object
-        init.formatProjects();
-        // Append Data into the Projects section
-        init.renderProjects();
-        //run through array and append images
-        for (img in myProjects[data]["images"]){
-          //get Image element from array
-          init.formatSkill();
-          //Append Image to Image placeholder
-          init.renderSkill();
-        }
-      }    
-  },
-  addEducation = function(){
+  ],
+  render: function(){
     var FormattedHTMLschoolName, FormattedHTMLschoolDegree, FormattedHTMLschoolDates, FormattedHTMLschoolLocation, FormattedHTMLschoolMajor,
         FormattedHTMLonlineTitle, FormattedHTMLonlineSchool, FormattedHTMLonlineDates, FormattedHTMLonlineURL,
         myEducation = education.schools,
@@ -346,16 +335,24 @@ addBio = function(){
     init.startOnlineCourses();
     //add Online Courses Info
     init.addOnline();
-  },
-  addMap = function(){
-    $map.append(googleMap);
-  };
+  }
+}
+
+
+
+
+/* *********** Builder Code ***************/
+
+var $map = $('#mapDiv'),
+    addMap = function(){
+      $map.append(googleMap);
+    };
 
 /**
  * BIO BLOCK
  */
 
-addBio();
+bio.render();
 
   
 //======
@@ -364,7 +361,7 @@ addBio();
  * WORK BLOCK
  */
 
-addWork();
+work.render();
 
 // =================
 
@@ -372,7 +369,7 @@ addWork();
  * PROJECTS BLOCK
  */
 
-addProjects();
+projects.render();
 
 // =================
 
@@ -380,7 +377,7 @@ addProjects();
  * EDUCATION BLOCK
  */
 
-addEducation();
+education.render();
 
 // =================
 
